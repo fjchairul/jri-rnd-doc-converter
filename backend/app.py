@@ -19,9 +19,18 @@ def upload_file():
     file.save(filepath)
 
     try:
+        # Convert file to markdown
         output = pypandoc.convert_file(filepath, "md")
+        
+        # Delete the uploaded file after conversion
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            
         return jsonify({"markdown": output})
     except Exception as e:
+        # Clean up file even if conversion fails
+        if os.path.exists(filepath):
+            os.remove(filepath)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/', defaults={'path': ''})
@@ -34,4 +43,3 @@ def serve(path):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-    
